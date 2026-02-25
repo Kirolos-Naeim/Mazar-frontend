@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#f7efe3"/>
+  <rect x="260" y="120" width="280" height="250" rx="120" fill="#e2b46d"/>
+  <rect x="290" y="140" width="220" height="210" rx="100" fill="#f5d8a8"/>
+  <text x="400" y="450" font-size="48" text-anchor="middle" fill="#6a4725" font-family="Arial">Shawarma Wrap</text>
+</svg>

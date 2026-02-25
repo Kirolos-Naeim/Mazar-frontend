@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#eef6e8"/>
+  <ellipse cx="400" cy="250" rx="190" ry="140" fill="#4d7c3a"/>
+  <ellipse cx="400" cy="250" rx="140" ry="95" fill="#88b26a"/>
+  <text x="400" y="450" font-size="48" text-anchor="middle" fill="#2d4d1f" font-family="Arial">Molokhia Meal</text>
+</svg>
