@@ -149,36 +149,38 @@ button {
   }
 }
 
+/* Page transitions — no persistent will-change to avoid GPU memory waste */
 .page-transition {
-  animation: pageFadeSlideIn 280ms ease-out;
-  will-change: transform, opacity;
+  animation: pageFadeSlideIn 220ms ease-out;
 }
 
+/* Card pop-in on initial load only — remove delay via inline style on re-filters */
 .card-animate {
-  animation: cardPopIn 340ms ease-out forwards;
-  will-change: transform, opacity;
+  animation: cardPopIn 260ms ease-out forwards;
 }
 
+/* Soft hover — will-change only applied on devices that support hover (not touch) */
 .soft-hover {
-  transition: transform 180ms ease, box-shadow 180ms ease;
-  will-change: transform;
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
-.soft-hover:hover {
-  transform: translate3d(0, -2px, 0);
-  box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.55);
+@media (hover: hover) {
+  .soft-hover:hover {
+    will-change: transform;
+    transform: translate3d(0, -2px, 0);
+    box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.55);
+  }
 }
 
 .modal-backdrop {
-  animation: backdropFadeIn 200ms ease-out;
-  will-change: opacity;
+  animation: backdropFadeIn 180ms ease-out;
 }
 
 .modal-content {
-  animation: modalSlideUp 250ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
+  animation: modalSlideUp 230ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Image crossfade for slider */
 .slide-fade-in {
-  animation: fadeIn 500ms ease-out;
+  animation: fadeIn 350ms ease-out;
 }

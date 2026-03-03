@@ -12,8 +12,11 @@ RUN npm ci
 
 COPY . .
 
-# NEXT_PUBLIC_* env vars are baked at build time
-# Set them via docker build args or env when building in CI.
+# NEXT_PUBLIC_* vars are baked at build time — pass the real backend URL here.
+# Example: docker build --build-arg NEXT_PUBLIC_API_URL=http://<minikube-ip>:30400 ...
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN npm run build
 
 # =========================

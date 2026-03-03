@@ -1,6 +1,9 @@
 export type CartItem = {
   productId: string;
   quantity: number;
+  /** Stored at add-time so cart page doesn't need to re-fetch /products */
+  name?: string;
+  price?: string;
 };
 
 const CART_KEY = 'mvp-cart-items';
@@ -22,11 +25,17 @@ export function saveCart(items: CartItem[]) {
   localStorage.setItem(CART_KEY, JSON.stringify(items));
 }
 
-export function addToCart(productId: string, quantity = 1) {
+export function addToCart(productId: string, quantity = 1, meta?: { name?: string; price?: string }) {
   const cart = getCart();
   const existing = cart.find((i) => i.productId === productId);
-  if (existing) existing.quantity += quantity;
-  else cart.push({ productId, quantity });
+  if (existing) {
+    existing.quantity += quantity;
+    // Keep meta up to date in case price changed
+    if (meta?.name) existing.name = meta.name;
+    if (meta?.price) existing.price = meta.price;
+  } else {
+    cart.push({ productId, quantity, ...meta });
+  }
   saveCart(cart);
 }
 

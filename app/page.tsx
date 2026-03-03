@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 const slides = [
@@ -15,7 +16,7 @@ const slides = [
   },
   {
     title: 'Easy Checkout',
-    subtitle: 'Cash on delivery — simple and fast.',
+    subtitle: 'Cash on Delivery — simple and fast.',
     image: '/products/molokhia.png',
   },
 ];
@@ -29,14 +30,6 @@ const highlights = [
 export default function HomePage() {
   const [index, setIndex] = useState(0);
 
-  // Preload all slider images on mount to prevent flash on slide change
-  useEffect(() => {
-    slides.forEach((s) => {
-      const img = new Image();
-      img.src = s.image;
-    });
-  }, []);
-
   useEffect(() => {
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % slides.length);
@@ -44,35 +37,55 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  const current = slides[index];
-
   return (
     <div className="space-y-6 page-transition">
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm soft-hover">
-        <img
-          key={current.image}
-          src={current.image}
-          alt={current.title}
-          className="h-[430px] w-full object-cover slide-fade-in"
-        />
+      {/*
+        Hero slider: all images are always in the DOM, toggled via opacity.
+        This avoids unmounting/remounting <img> on each slide change,
+        which caused a flash and unnecessary network re-checks.
+        next/image gives WebP/AVIF auto-format + no layout shift.
+      */}
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-sm" style={{ height: 430 }}>
+        {slides.map((slide, i) => (
+          <div
+            key={slide.image}
+            className="absolute inset-0 transition-opacity duration-500"
+            style={{ opacity: i === index ? 1 : 0 }}
+            aria-hidden={i !== index}
+          >
+            <Image
+              src={slide.image}
+              alt={slide.title}
+              fill
+              className="object-cover"
+              priority={i === 0}
+              sizes="(max-width: 1024px) 100vw, 900px"
+            />
+          </div>
+        ))}
 
-        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/45 to-black/20" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/45 to-black/20 pointer-events-none" />
 
+        {/* Text — fade-in keyed on index so text still animates on change */}
         <div className="absolute inset-0 flex items-center justify-start p-8 md:p-12">
           <div key={index} className="max-w-xl space-y-3 text-white slide-fade-in">
-            <h1 className="text-3xl font-bold leading-tight md:text-5xl">{current.title}</h1>
-            <p className="text-sm text-white/90 md:text-base">{current.subtitle}</p>
+            <h1 className="text-3xl font-bold leading-tight md:text-5xl">{slides[index].title}</h1>
+            <p className="text-sm text-white/90 md:text-base">{slides[index].subtitle}</p>
           </div>
         </div>
 
-        <div className="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 items-center justify-center gap-2">
+        {/* Dot controls */}
+        <div className="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
           {slides.map((_, i) => (
             <button
               key={i}
               onClick={() => setIndex(i)}
-              className={i === index
-                ? 'h-2.5 w-8 rounded-full bg-white transition-all duration-300'
-                : 'h-2.5 w-2.5 rounded-full bg-white/50 transition-all duration-300'}
+              className={
+                i === index
+                  ? 'h-2.5 w-8 rounded-full bg-white transition-all duration-300'
+                  : 'h-2.5 w-2.5 rounded-full bg-white/50 transition-all duration-300'
+              }
               aria-label={`Slide ${i + 1}`}
             />
           ))}
