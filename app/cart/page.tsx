@@ -127,7 +127,7 @@ export default function CartPage() {
                     <div className="font-semibold text-slate-900">{line.name}</div>
                     <div className="text-sm text-slate-600">EGP {line.price}</div>
                   </div>
-                  <div className="text-sm font-semibold text-slate-800">
+                  <div className="text-sm font-semibold text-slate-700">
                     EGP {(Number(line.price) * line.quantity).toFixed(2)}
                   </div>
                 </div>
@@ -204,8 +204,8 @@ export default function CartPage() {
             {status ? (
               <div
                 className={`mb-3 rounded-xl px-3 py-2 text-sm ${status.type === 'success'
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'bg-rose-50 text-rose-700'
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : 'bg-rose-50 text-rose-700'
                   }`}
               >
                 {status.message}
