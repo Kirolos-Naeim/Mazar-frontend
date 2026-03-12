@@ -18,32 +18,30 @@ pipeline {
     }
 
     stage('Install dependencies') {
-      agent {
-        docker {
-          image 'node:20-bullseye'
-        }
-      }
       steps {
-        sh '''
-          node -v
-          npm -v
-          npm ci || npm install
-        '''
+        script {
+          docker.image('node:20-bullseye').inside {
+            sh '''
+              node -v
+              npm -v
+              npm ci || npm install
+            '''
+          }
+        }
       }
     }
 
     stage('Build') {
-      agent {
-        docker {
-          image 'node:20-bullseye'
-        }
-      }
       steps {
-        sh '''
-          node -v
-          npm -v
-          npm run build
-        '''
+        script {
+          docker.image('node:20-bullseye').inside {
+            sh '''
+              node -v
+              npm -v
+              npm run build
+            '''
+          }
+        }
       }
     }
 
