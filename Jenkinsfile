@@ -31,6 +31,7 @@ pipeline {
     }
 
     stage('Install dependencies') {
+<<<<<<< HEAD
       steps {
         script {
           installDependencies()
@@ -42,15 +43,40 @@ pipeline {
       steps {
         script {
           runTests()
+=======
+      agent {
+        docker {
+          image 'node:20-bullseye'
+>>>>>>> parent of 194cbee (refactor: use `docker.image(...).inside` for agent execution within Jenkinsfile stages.)
         }
+      }
+      steps {
+        sh '''
+          node -v
+          npm -v
+          npm ci || npm install
+        '''
       }
     }
 
     stage('Build') {
+<<<<<<< HEAD
       steps {
         script {
           buildApp()
+=======
+      agent {
+        docker {
+          image 'node:20-bullseye'
+>>>>>>> parent of 194cbee (refactor: use `docker.image(...).inside` for agent execution within Jenkinsfile stages.)
         }
+      }
+      steps {
+        sh '''
+          node -v
+          npm -v
+          npm run build
+        '''
       }
     }
 
