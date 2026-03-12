@@ -1,3 +1,13 @@
+#!/usr/bin/env groovy
+library identifier: 'jenkins-shared-library@main', retriever: modernSCM([
+  [$class: 'GitSCMSource',
+   remote: 'https://gitlab.com/Kirolos-Naeim-group/jenkins-shared-library.git',
+   credentialsId: 'gitlab-credentional_1'
+  ]
+])
+
+def gv
+
 pipeline {
   agent any
 
@@ -11,22 +21,27 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
+    stage('init') {
       steps {
-        checkout scm
+        script {
+          echo 'initiating frontend pipeline'
+          gv = load 'script.groovy'
+        }
       }
     }
 
     stage('Install dependencies') {
       steps {
         script {
-          docker.image('node:20-bullseye').inside {
-            sh '''
-              node -v
-              npm -v
-              npm ci || npm install
-            '''
-          }
+          installDependencies()
+        }
+      }
+    }
+
+    stage('Test') {
+      steps {
+        script {
+          runTests()
         }
       }
     }
@@ -34,13 +49,7 @@ pipeline {
     stage('Build') {
       steps {
         script {
-          docker.image('node:20-bullseye').inside {
-            sh '''
-              node -v
-              npm -v
-              npm run build
-            '''
-          }
+          buildApp()
         }
       }
     }
@@ -82,13 +91,9 @@ pipeline {
         script {
           def version = sh(script: "node -p \"require('./package.json').version\"", returnStdout: true).trim()
           def imageTag = "${version}"
+          def fullImage = "${DOCKER_IMAGE}:${imageTag}"
 
-          sh """
-            docker build \
-              -t ${DOCKER_IMAGE}:${imageTag} \
-              -t ${DOCKER_IMAGE}:latest \
-              .
-          """
+          dockerBuild(fullImage)
 
           env.APP_VERSION = version
         }
@@ -105,10 +110,16 @@ pipeline {
           usernameVariable: 'DOCKER_USER',
           passwordVariable: 'DOCKER_PASS'
         )]) {
-          sh '''
-            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-            docker push ${DOCKER_IMAGE}:latest
-          '''
+          script {
+            sh '''
+              echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            '''
+            def version = sh(script: "node -p \"require('./package.json').version\"", returnStdout: true).trim()
+            def imageTag = "${version}"
+            def fullImage = "${DOCKER_IMAGE}:${imageTag}"
+
+            dockerPush(fullImage)
+          }
         }
       }
     }
@@ -116,7 +127,7 @@ pipeline {
 
   post {
     always {
-      echo 'Pipeline finished'
+      echo 'Frontend pipeline finished'
     }
   }
 }
