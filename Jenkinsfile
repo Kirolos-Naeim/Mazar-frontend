@@ -7,14 +7,11 @@ library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
 def gv
 
 pipeline {
-    agent {
-        docker { image 'node:20-alpine' } 
-    }
+    agent none
     environment {
         DOCKER_REPO_SERVER = 'keroles149'
         DOCKER_REPO = "${DOCKER_REPO_SERVER}/mazar_frontend"
         IMAGE_NAME = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-        // docker push keroles149/mazar_frontend:tagname
     }
     options {
         timestamps()
@@ -23,6 +20,7 @@ pipeline {
 
     stages {
         stage('Checkout') {
+            agent { docker { image 'node:20-alpine' } }
             steps {
                 checkout scm
                 echo " Checked out branch: ${env.BRANCH_NAME ?: 'unknown'}"
@@ -30,36 +28,41 @@ pipeline {
         }
 
         stage('Install Dependencies') {
+            agent { docker { image 'node:20-alpine' } }
             steps {
-                sh 'npm ci || npm install'
+                sh 'npm ci'
             }
         }
 
         stage('Test') {
+            agent { docker { image 'node:20-alpine' } }
             steps {
                 sh 'npm test'
             }
         }
 
         stage('Build') {
+            agent { docker { image 'node:20-alpine' } }
             steps {
                 sh 'npm run build'
             }
         }
-        stage("build image and push image ") {
-            steps {
-              script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', usernameVariable: 'USERNAME', passwordVariable: 'PASS')]) {
-                    buildImage "${DOCKER_REPO}:${IMAGE_NAME}"
-                    sh "echo $PASS | docker login -u $USERNAME --password-stdin ${DOCKER_REPO_SERVER}"
-                    dockerPush "${DOCKER_REPO}:${IMAGE_NAME}"
 
-                  }
-            }
+        stage('Build & Push Docker Image') {
+            agent any
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', usernameVariable: 'USERNAME', passwordVariable: 'PASS')]) {
+                        buildImage "${DOCKER_REPO}:${IMAGE_NAME}"
+                        sh "echo \$PASS | docker login -u \$USERNAME --password-stdin ${DOCKER_REPO_SERVER}"
+                        dockerPush "${DOCKER_REPO}:${IMAGE_NAME}"
+                    }
+                }
             }
         }
 
         stage('Archive Artifacts') {
+            agent any
             steps {
                 archiveArtifacts artifacts: '.next/**', allowEmptyArchive: false
                 echo 'Build artifacts archived from .next/'
