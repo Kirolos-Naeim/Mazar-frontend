@@ -49,7 +49,7 @@ pipeline {
         stage("build image and push image ") {
             steps {
               script {
-                    withCredentials([usernamePassword(credentialsId: 'ecr-credential', usernameVariable: 'USERNAME', passwordVariable: 'PASS')]) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', usernameVariable: 'USERNAME', passwordVariable: 'PASS')]) {
                     buildImage "${DOCKER_REPO}:${IMAGE_NAME}"
                     sh "echo $PASS | docker login -u $USERNAME --password-stdin ${DOCKER_REPO_SERVER}"
                     dockerPush "${DOCKER_REPO}:${IMAGE_NAME}"
